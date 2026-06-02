@@ -26,12 +26,12 @@ export function MessageBubble({ message }: { message: Message }) {
           </div>
         )}
         <div className={cn(
-          'rounded-2xl px-4 py-2.5 text-sm',
+          'rounded-2xl px-4 py-2.5 text-sm text-foreground',
           isUser
-            ? 'bg-primary text-primary-foreground rounded-br-sm'
-            : 'bg-card border border-border text-foreground rounded-bl-sm'
+            ? 'bg-muted rounded-br-sm'
+            : 'bg-card border border-border rounded-bl-sm'
         )}>
-          <div className="prose prose-sm max-w-none break-words prose-p:my-1 prose-p:leading-relaxed prose-headings:font-semibold prose-headings:my-2 prose-ul:my-1 prose-ul:pl-4 prose-ol:my-1 prose-ol:pl-4 prose-li:my-0.5 prose-strong:font-semibold prose-code:text-xs prose-code:bg-muted prose-code:px-1 prose-code:rounded prose-pre:bg-muted prose-pre:rounded-lg prose-pre:p-3 prose-table:text-xs">
+          <div className="prose prose-sm max-w-none break-words prose-p:my-1 prose-p:leading-relaxed prose-headings:font-semibold prose-headings:my-2 prose-ul:my-1 prose-ul:pl-4 prose-ol:my-1 prose-ol:pl-4 prose-li:my-0.5 prose-strong:font-semibold prose-code:text-xs prose-code:bg-muted prose-code:px-1 prose-code:rounded prose-pre:bg-muted prose-pre:rounded-lg prose-pre:p-3 prose-table:text-xs prose-p:text-foreground prose-headings:text-foreground prose-li:text-foreground prose-strong:text-foreground">
             <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
               {message.content || ' '}
             </ReactMarkdown>
