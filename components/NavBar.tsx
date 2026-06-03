@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from './AuthProvider'
 import { createClient } from '@/lib/supabase'
+import { Logo } from './Logo'
 
 export function NavBar() {
   const { user } = useAuth()
@@ -26,6 +27,7 @@ export function NavBar() {
   return (
     <header className="flex items-center justify-between px-4 h-12 border-b border-border/40 shrink-0">
       <div className="flex items-center gap-2">
+        <Logo size={26} />
         <span className="font-semibold text-foreground tracking-tight">AidGraph</span>
         <span className="hidden sm:block text-xs text-muted-foreground/70 border border-border/40 rounded px-1.5 py-0.5">
           AI for Good

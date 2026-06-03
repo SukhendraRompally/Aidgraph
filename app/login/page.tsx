@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/Logo'
 
 type Mode = 'signin' | 'signup'
 
@@ -64,8 +65,8 @@ export default function LoginPage() {
       <div className="max-w-sm w-full space-y-8">
         {/* Logo */}
         <div className="text-center space-y-2">
-          <div className="h-14 w-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
-            <span className="text-primary text-2xl font-bold">A</span>
+          <div className="flex justify-center">
+            <Logo size={52} />
           </div>
           <h1 className="text-2xl font-bold text-foreground">AidGraph</h1>
           <p className="text-sm text-muted-foreground">AI for Good</p>

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Plus, MessageSquare, Trash2 } from 'lucide-react'
 import { useAuth } from './AuthProvider'
 import { cn } from '@/lib/utils'
+import { Logo } from './Logo'
 
 type Thread = { id: string; title: string; updated_at: string }
 
@@ -48,6 +49,10 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <aside className="flex flex-col w-64 border-r border-border/40 bg-sidebar min-h-0">
+      <div className="px-4 py-3 shrink-0 flex items-center gap-2 border-b border-border/40">
+        <Logo size={22} />
+        <span className="font-semibold text-sm text-sidebar-foreground tracking-tight">AidGraph</span>
+      </div>
       <div className="p-3 shrink-0">
         <button
           onClick={handleNewThread}
