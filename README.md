@@ -27,38 +27,37 @@ AidGraph supports natural language questions across a wide range of due diligenc
 | **Geography** | "Education nonprofits in India formed after 2000" |
 | **Filters** | "US senior focused organizations with 10+ employees, tax-exempt" |
 | **Follow-ups** | Full conversation history — ask follow-up questions naturally |
+| **Multilingual** | Ask in any language — answers are returned in the same language |
 
 ### Data Points Available per Organization
 
 Each NGO in the database may include:
 
-- **Identity**: Name, EIN/registration ID, country, state, city, website
-- **Mission**: AI-summarized program description and focus areas
-- **Financials**: Revenue (max and average), total assets
-- **Operations**: Employee count, formation year, tax-exempt status
-- **Category**: Functional classification (basic profile, financial data, program data)
+- **Identity**: Name, EIN/registration ID, country, state, city, website, phone, email
+- **Mission**: AI-summarized program description, beneficiary groups, and geographic reach
+- **Financials**: Year-by-year revenue (2019–2025), expenses, assets, liabilities, donations
+- **Operations**: Employee count, volunteer count, formation year, tax-exempt status
+- **References**: Links to ProPublica and GuideStar for further due diligence
 
 ---
 
 ## The Dataset
 
-AidGraph is powered by a dataset of **8.4 million nonprofit organizations** compiled from public filings and registries.
+AidGraph is powered by a dataset of **8M+ nonprofit organizations** compiled from public filings and registries.
 
 **Dataset:** [sukhendrarompally/giveai on Hugging Face](https://huggingface.co/datasets/sukhendrarompally/giveai)
 
 The dataset contains two record types:
 - **`all_ngos`** — one record per NGO with a single embedding capturing the full organizational profile
-- **`vectors_optimized`** — per-attribute embeddings (13.8M records) for higher-precision retrieval on specific fields like mission, financials, and location
+- **`vectors_optimized`** — per-attribute embeddings for higher-precision retrieval on specific fields like mission, financials, and location
 
-Embeddings are generated using OpenAI's `text-embedding-3-large` model at 256 dimensions and stored in a Qdrant vector database for semantic search.
+These are combined into **21.8M searchable vectors** in a Qdrant vector database.
 
-> **Coverage note:** The dataset skews heavily toward US-registered nonprofits (IRS Form 990 filers). International NGO coverage varies by country. For non-US queries, the system performs semantic similarity search and clearly flags when exact matches aren't available.
+**Coverage:** US, UK, Brazil, India, Australia, Canada, Germany, Chile, Colombia, Ireland, and 70+ more countries.
 
 ---
 
 ## Architecture
-
-AidGraph is split into two independent services:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -79,14 +78,14 @@ AidGraph is split into two independent services:
 │                                                          │
 │  • Parses natural language → structured filters          │
 │  • Embeds query → Qdrant semantic search                 │
-│  • Retrieves matching NGOs                               │
-│  • Streams AI-generated answer via DeepSeek              │
-└───────────────────────┬─────────────────────────────────┘
-                        │
-┌───────────────────────▼─────────────────────────────────┐
-│                   Qdrant Vector DB                        │
-│              8.4M NGOs · 256-dim embeddings              │
-└─────────────────────────────────────────────────────────┘
+│  • Web search enrichment for time-sensitive queries      │
+│  • Streams AI-generated answer                           │
+└──────────┬────────────────────────────┬─────────────────┘
+           │                            │
+┌──────────▼──────────┐    ┌────────────▼────────────────┐
+│  Qdrant Vector DB   │    │     Tavily Web Search        │
+│  21.8M NGO vectors  │    │  Live enrichment + fallback  │
+└─────────────────────┘    └─────────────────────────────┘
 ```
 
 ### Key design decisions
@@ -94,7 +93,8 @@ AidGraph is split into two independent services:
 - **Backend owns all intelligence.** The frontend sends raw natural language and displays what comes back. No LLM calls or query logic on the frontend.
 - **Streaming by default.** The backend streams its answer word-by-word over SSE so users see results immediately.
 - **Conversation history.** Each query passes prior messages to the backend so follow-up questions retain full context.
-- **Graceful degradation.** When no exact matches exist (e.g. a country with limited coverage), the system falls back to semantic similarity and tells the user clearly what it found and why.
+- **Web search enrichment.** For time-sensitive queries (recent news, current leadership, closures) or low-confidence results, the backend supplements database answers with live web search.
+- **Graceful degradation.** When filters return no matches, the system falls back to semantic similarity and explains what it found.
 
 ---
 
@@ -102,16 +102,16 @@ AidGraph is split into two independent services:
 
 | Layer | Technology |
 |---|---|
-| Frontend framework | Next.js 16 (App Router, TypeScript) |
-| Styling | Tailwind CSS v4 + shadcn/ui |
+| Frontend framework | Next.js (App Router, TypeScript) |
+| Styling | Tailwind CSS + shadcn/ui |
 | Auth + database | Supabase (email auth, thread/message storage) |
 | Hosting | Vercel |
 | Backend API | FastAPI (Python) |
 | Vector database | Qdrant |
 | LLM | DeepSeek |
-| Embeddings | OpenAI `text-embedding-3-large` (256 dimensions) |
+| Embeddings | OpenAI `text-embedding-3-large` |
+| Web search | Tavily |
 | Tunnel | Cloudflare Tunnel |
-| Email notifications | Resend |
 
 ---
 
@@ -119,17 +119,17 @@ AidGraph is split into two independent services:
 
 - **Chat interface** — continuous conversation threads, just like ChatGPT or Claude
 - **Thread history** — logged-in users can save and return to past research sessions
+- **Multilingual** — ask in any language, receive answers in the same language
 - **Freemium funnel** — 3 free queries for anonymous users, then sign-up prompt
-- **Dataset notes** — when the backend modifies a query (e.g. no data for a specific country), a subtle info chip explains what happened
+- **Dataset notes** — when the backend modifies a query, a subtle info chip explains what happened
 - **Auth** — email/password via Supabase
 - **API access form** — prospective API customers can apply
-- **Contact form** — routes inquiries to the team via email
 
 ---
 
 ## Backend API
 
-The backend exposes a single primary endpoint:
+The backend exposes a single primary endpoint at `https://api.aidgraph.com`:
 
 ```
 POST /query
@@ -151,25 +151,24 @@ POST /query
 ```json
 {
   "answer": "Here are the top matching NGOs...",
-  "results": [ { "ngo_name": "...", "country_code": "US", "max_revenue": 3752012, "..." : "..." } ],
+  "results": [ { "ngo_name": "...", "country_code": "US", "max_revenue": 3752012 } ],
   "parsed_query": {
     "semantic_query": "environmental NGOs California",
-    "filters": { "state": "CA", "min_revenue": 1000000 },
-    "_note": "optional explanation if query was modified"
+    "filters": { "state": "CA", "min_revenue": 1000000 }
   }
 }
 ```
 
 **Streaming** (`stream: true`) returns Server-Sent Events:
 ```
-data: {"results": [...], "parsed_query": {...}}   ← render immediately
-data: {"chunk": "Based on the data..."}           ← word-by-word answer
+data: {"results": [...], "parsed_query": {...}}
+data: {"chunk": "word-by-word answer..."}
 data: [DONE]
 ```
 
 ### Supported filter dimensions
 
-Country · US state · City · Min/max revenue · Min/max assets · Min/max employees · Formation year · Tax-exempt status
+Country · Region (Latin America, Africa, Europe, etc.) · US state · City · Min/max revenue · Min/max assets · Min/max employees · Formation year · Tax-exempt status · Political affiliation · Report type
 
 ---
 
@@ -178,9 +177,8 @@ Country · US state · City · Min/max revenue · Min/max assets · Min/max empl
 ### Prerequisites
 
 - Node.js 18+
-- A running instance of the [AidGraph backend](https://api.aidgraph.com)
+- A running instance of the AidGraph backend (or point to `https://api.aidgraph.com`)
 - A [Supabase](https://supabase.com) project
-- A [Resend](https://resend.com) account (optional, for email notifications)
 
 ### Setup
 
@@ -193,20 +191,13 @@ npm install
 Create a `.env.local` file:
 
 ```bash
-AIDGRAPH_API_URL=https://your-backend-url
+AIDGRAPH_API_URL=https://api.aidgraph.com
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-RESEND_API_KEY=your-resend-key        # optional
 ```
 
-Run the database schema in your Supabase SQL editor:
-
-```bash
-# Copy contents of supabase/schema.sql and run in Supabase dashboard
-```
-
-Start the dev server:
+Run the database schema in your Supabase SQL editor (see `supabase/schema.sql`), then:
 
 ```bash
 npm run dev
@@ -230,4 +221,4 @@ MIT
 
 ---
 
-*AidGraph is built on the belief that better information leads to better giving. If you're working on something in the philanthropy or social impact space and want to collaborate, [get in touch](https://aidgraph-ui.vercel.app/contact).*
+*AidGraph is built on the belief that better information leads to better giving.*
