@@ -10,10 +10,10 @@ const QUERY_COUNT_KEY = 'aidgraph_query_count'
 const FREE_LIMIT = 3
 
 const SUGGESTIONS = [
-  'Environmental NGOs in California with $1M+ revenue',
-  'Education nonprofits in Sub-Saharan Africa',
-  'Water & sanitation charities in India under $500K',
-  'Compare animal welfare orgs by size and impact',
+  'Food banks and hunger relief organizations in Chicago',
+  'Senior focused nonprofits in Canada',
+  'Environmental nonprofits in California with over $1M revenue',
+  'Largest animal welfare organizations in the US by assets',
 ]
 
 export type Message = {
@@ -185,11 +185,10 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
           <div className="flex flex-col items-center justify-center h-full gap-8 px-4 py-12">
             <div className="text-center space-y-2">
               <h1 className="text-4xl font-bold text-foreground tracking-tight">
-                What do you want to<br />
-                <span className="text-primary">research today?</span>
+                Research any <span className="text-primary">nonprofit</span> in the world.
               </h1>
               <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-                Due diligence on any of 8M+ nonprofits worldwide — missions, financials, governance, and more.
+                8M+ organizations — missions, financials, governance, and more.
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-2xl">
