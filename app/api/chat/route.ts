@@ -1,3 +1,5 @@
+export const maxDuration = 60 // seconds — prevents Vercel from timing out on longer conversations
+
 const API_URL = process.env.AIDGRAPH_API_URL ?? 'https://api.aidgraph.com'
 
 type RawMsg = { role: string; parts?: { type: string; text?: string }[]; content?: string }

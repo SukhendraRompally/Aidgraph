@@ -163,8 +163,7 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
         const { id } = await r.json()
         tid = id
         setThreadId(id)
-        // Update URL without re-mounting the page (router.replace would reset state)
-        window.history.replaceState(null, '', `/t/${id}`)
+        window.dispatchEvent(new CustomEvent('thread-created'))
       }
       await saveMessages(tid!, allMsgs)
     }
