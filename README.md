@@ -20,12 +20,12 @@ AidGraph supports natural language questions across a wide range of due diligenc
 
 | Category | Example questions |
 |---|---|
-| **Discovery** | "Environmental nonprofits in Kenya with over $1M revenue" |
-| **Deep dive** | "Tell me everything about GiveDirectly — mission, financials, governance" |
+| **Discovery** | "Environmental nonprofits in California with over $1M revenue" |
+| **Deep dive** | "Tell me everything about Save the Children — mission, financials, governance" |
 | **Comparison** | "Compare Doctors Without Borders and Direct Relief by size and focus" |
-| **Financials** | "Which water sanitation NGOs in India have the highest assets?" |
-| **Geography** | "Education nonprofits in Sub-Saharan Africa formed after 2010" |
-| **Filters** | "US animal welfare organizations with 50+ employees, tax-exempt" |
+| **Financials** | "Which Animal Welfare Nonprofits in the UK have the highest assets?" |
+| **Geography** | "Education nonprofits in India formed after 2000" |
+| **Filters** | "US senior focused organizations with 10+ employees, tax-exempt" |
 | **Follow-ups** | Full conversation history — ask follow-up questions naturally |
 
 ### Data Points Available per Organization
