@@ -99,6 +99,7 @@ If you are a researcher, institution, or company interested in access to the und
 - **Conversation history.** Each query passes prior messages so follow-up questions retain full context, including pronoun resolution ("tell me more about *them*").
 - **Agentic web search.** Rather than keyword triggers, the backend generates a draft answer first, then uses an AI evaluator to judge whether it's complete. Web search fires only when the evaluator determines the database answer is insufficient — e.g. recent news, current leadership, time-sensitive information.
 - **Graceful degradation.** When filters return no matches, the system falls back to semantic similarity and explains what it found instead.
+- **Idle-sleep architecture.** The backend sleeps Qdrant and FastAPI after 15 minutes of inactivity to free RAM. On cold-start, the frontend receives a 202, shows a friendly wakeup message, polls `/api/status` until ready, then retries automatically. Cold-start takes ~60-90 seconds; subsequent queries are instant.
 
 ---
 
@@ -123,7 +124,7 @@ If you are a researcher, institution, or company interested in access to the und
 - **Thread history** — logged-in users can save and return to past research sessions
 - **Streaming answers** — responses appear word-by-word as they're generated
 - **Multilingual** — ask in any language, receive answers in the same language
-- **Freemium funnel** — 3 free queries for anonymous users, then sign-up prompt
+- **Freemium funnel** — 5 free queries for anonymous users, then sign-up prompt
 - **Query notes** — when the backend modifies or falls back on a query, a subtle chip explains what happened
 - **Auth** — email/password via Supabase
 - **API access form** — prospective API customers can apply
