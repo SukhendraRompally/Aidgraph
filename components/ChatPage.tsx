@@ -197,7 +197,7 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
                 Research any <span className="text-primary">nonprofit</span> in the world.
               </h1>
               <p className="text-muted-foreground text-sm max-w-xs sm:max-w-sm mx-auto">
-                8M+ organizations — missions, financials, governance, and more.
+                8M+ organizations across 80 countries — missions, financials, governance, and more.
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-2xl">
