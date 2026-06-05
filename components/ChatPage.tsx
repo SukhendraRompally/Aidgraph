@@ -80,16 +80,21 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
   }, [])
 
   const pollStatus = useCallback(async (headers: Record<string, string>, signal: AbortSignal) => {
-    const deadline = Date.now() + 90000
+    const deadline = Date.now() + 120000
     while (Date.now() < deadline) {
       if (signal.aborted) {
         throw new DOMException('Aborted', 'AbortError')
       }
-      const statusRes = await fetch('/api/status', { method: 'GET', headers, signal })
-      if (statusRes.ok) {
-        return true
+      try {
+        const statusRes = await fetch('/api/status', { method: 'GET', headers, signal })
+        const data = await statusRes.json().catch(() => ({}))
+        if (data.ready === true) {
+          return true
+        }
+      } catch {
+        // ignore, keep polling
       }
-      await new Promise(resolve => setTimeout(resolve, 2500))
+      await new Promise(resolve => setTimeout(resolve, 3000))
     }
     return false
   }, [])
