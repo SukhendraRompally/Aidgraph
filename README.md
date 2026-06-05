@@ -45,9 +45,17 @@ Each NGO in the database may include:
 
 AidGraph is powered by an in-house compiled dataset of **8M+ nonprofit organizations** drawn from public filings and national charity registries across 80+ countries.
 
+**Dataset:** [sukhendrarompally/giveai on Hugging Face](https://huggingface.co/datasets/sukhendrarompally/giveai) *(gated — request access to explore the raw data)*
+
+The dataset is split into two record types:
+- **`all_ngos`** — one record per NGO with a single embedding capturing the full organizational profile
+- **`vectors_optimized`** — per-attribute embeddings for higher-precision retrieval on specific fields like mission, financials, and location
+
+These are combined into **21.8M searchable vectors** in a vector database, enabling both semantic search (what an NGO *does*) and structured filtering (revenue, location, size, etc.) in a single query.
+
 **Coverage**: US, UK, Brazil, India, Australia, Canada, Germany, Chile, Colombia, Ireland, and 70+ more countries.
 
-The dataset is combined into **21.8M searchable vectors** in a vector database, enabling both semantic search (what an NGO *does*) and structured filtering (revenue, location, size, etc.) in a single query.
+If you are a researcher, institution, or company interested in access to the underlying dataset for analysis or partnership, feel free to reach out.
 
 ---
 
