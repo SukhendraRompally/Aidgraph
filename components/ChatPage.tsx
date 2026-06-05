@@ -143,7 +143,7 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
 
         if (res.status === 202) {
           const data = await res.json().catch(() => ({}))
-          const wakeText = data.message ?? 'Waking services, please wait...'
+          const wakeText = 'I was sleeping after serving other requests. Please allow me 60 seconds to fully wake up and serve you. Once awake, my responses will be instant!'
           setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: wakeText } : m))
           setStreamPhase('Waking services…')
 
