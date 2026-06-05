@@ -185,6 +185,20 @@ data: [DONE]
 
 Country · Region (Latin America, Africa, Europe, Southeast Asia, etc.) · US state · City · Min/max revenue · Min/max assets · Min/max employees · Formation year range · Tax-exempt status · Political affiliation · Report type
 
+### Authentication & Rate Limiting
+
+**Anonymous users** (not signed in):
+- 5 free queries per day (tracked in browser localStorage)
+- After reaching limit, prompted to sign in
+
+**Authenticated users** (signed in with email):
+- 100 queries per day
+- 2 queries per second
+- Rate limit enforced by backend
+- Limit exceeded → shows reset time, user can retry after 24 hours
+
+Authenticated users can perform unlimited research within these bounds. Rate limiting prevents token-burning attacks and keeps service costs predictable.
+
 ---
 
 ## Running Locally

@@ -117,7 +117,12 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
         signal: ctrl.signal,
       })
 
-      if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`)
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}))
+        const detail = errorData.detail || `HTTP ${res.status}`
+        throw new Error(detail)
+      }
+      if (!res.body) throw new Error('No response body')
 
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
