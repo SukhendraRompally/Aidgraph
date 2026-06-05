@@ -141,7 +141,13 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
           if (raw === '[DONE]') break
           try {
             const event = JSON.parse(raw)
-            if (event.type === 'note') {
+            if (event.type === 'system_loading') {
+              // System is waking up, show the message
+              fullText = event.message
+              setMessages(prev =>
+                prev.map(m => m.id === assistantId ? { ...m, content: fullText } : m)
+              )
+            } else if (event.type === 'note') {
               noteText = event.value
               setMessages(prev =>
                 prev.map(m => m.id === assistantId ? { ...m, note: noteText } : m)
