@@ -163,7 +163,7 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
         throw new Error('No response from backend')
       }
 
-      const reader = res.body.getReader()
+      const reader = res.body!.getReader()
       const decoder = new TextDecoder()
       let buf = ''
 
