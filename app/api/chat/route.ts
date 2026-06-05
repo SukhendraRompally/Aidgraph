@@ -19,9 +19,15 @@ export async function POST(req: Request) {
   const query = normalized[lastUserIdx]?.content ?? ''
   const priorMessages = normalized.slice(0, lastUserIdx)
 
+  const backendHeaders: Record<string, string> = { 'Content-Type': 'application/json' }
+  const authHeader = req.headers.get('Authorization')
+  if (authHeader) {
+    backendHeaders['Authorization'] = authHeader
+  }
+
   const backendRes = await fetch(`${API_URL}/query`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: backendHeaders,
     body: JSON.stringify({
       query,
       ...(priorMessages.length > 0 && { messages: priorMessages }),

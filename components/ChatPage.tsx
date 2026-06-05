@@ -2,12 +2,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from './AuthProvider'
+import { createClient } from '@/lib/supabase'
 import { ChatInput } from './ChatInput'
 import { MessageBubble } from './MessageBubble'
 import { AuthGate } from './AuthGate'
 
 const QUERY_COUNT_KEY = 'aidgraph_query_count'
-const FREE_LIMIT = 3
+const FREE_LIMIT = 5
 
 const SUGGESTIONS = [
   'Food banks and hunger relief organizations in Chicago',
@@ -101,9 +102,17 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
     let noteText: string | undefined
 
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (user) {
+        const supabase = createClient()
+        const { data } = await supabase.auth.getSession()
+        if (data.session?.access_token) {
+          headers['Authorization'] = `Bearer ${data.session.access_token}`
+        }
+      }
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ messages: history }),
         signal: ctrl.signal,
       })
