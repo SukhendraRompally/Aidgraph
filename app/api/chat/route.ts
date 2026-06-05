@@ -1,4 +1,4 @@
-export const maxDuration = 60 // seconds — prevents Vercel from timing out on longer conversations
+export const maxDuration = 150 // seconds — allows time for Qdrant cold-start + query
 
 const API_URL = process.env.AIDGRAPH_API_URL ?? 'https://api.aidgraph.com'
 
@@ -34,8 +34,20 @@ export async function POST(req: Request) {
       stream: true,
       limit: 10,
     }),
-    signal: AbortSignal.timeout(30000),
+    signal: AbortSignal.timeout(150000),
   })
+
+  if (backendRes.status === 202) {
+    const payload = await backendRes.json().catch(() => ({}))
+    return new Response(JSON.stringify({
+      status: 'starting',
+      message: payload.message ?? 'Waking services, please wait...',
+      retry_after: payload.retry_after ?? 5,
+    }), {
+      status: 202,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
 
   if (!backendRes.ok || !backendRes.body) {
     return new Response(
@@ -72,13 +84,11 @@ export async function POST(req: Request) {
             try {
               const event = JSON.parse(raw)
               if ('results' in event) {
-                // First event: results + parsed_query — surface any dataset note
                 const note = event.parsed_query?._note
                 if (note) {
                   controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'note', value: note })}\n\n`))
                 }
               } else if ('chunk' in event) {
-                // Streaming text chunk
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'text', value: event.chunk })}\n\n`))
               }
             } catch { /* skip malformed lines */ }

@@ -79,6 +79,21 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
     }
   }, [])
 
+  const pollStatus = useCallback(async (headers: Record<string, string>, signal: AbortSignal) => {
+    const deadline = Date.now() + 90000
+    while (Date.now() < deadline) {
+      if (signal.aborted) {
+        throw new DOMException('Aborted', 'AbortError')
+      }
+      const statusRes = await fetch('/api/status', { method: 'GET', headers, signal })
+      if (statusRes.ok) {
+        return true
+      }
+      await new Promise(resolve => setTimeout(resolve, 2500))
+    }
+    return false
+  }, [])
+
   const handleSubmit = useCallback(async () => {
     if (!input.trim() || streaming) return
     if (!user && queryCount >= FREE_LIMIT) { setShowAuthGate(true); return }
@@ -110,19 +125,43 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
           headers['Authorization'] = `Bearer ${data.session.access_token}`
         }
       }
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ messages: history }),
-        signal: ctrl.signal,
-      })
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}))
-        const detail = errorData.detail || `HTTP ${res.status}`
-        throw new Error(detail)
+      let res: Response | null = null
+      const bodyPayload = JSON.stringify({ messages: history })
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        res = await fetch('/api/chat', {
+          method: 'POST',
+          headers,
+          body: bodyPayload,
+          signal: ctrl.signal,
+        })
+
+        if (res.status === 202) {
+          const data = await res.json().catch(() => ({}))
+          const wakeText = data.message ?? 'Waking services, please wait...'
+          setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: wakeText } : m))
+          setStreamPhase('Waking services…')
+
+          const ready = await pollStatus(headers, ctrl.signal)
+          if (!ready) {
+            throw new Error('Service startup timed out')
+          }
+          continue
+        }
+
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}))
+          const detail = errorData.detail || `HTTP ${res.status}`
+          throw new Error(detail)
+        }
+
+        if (!res.body) throw new Error('No response body')
+        break
       }
-      if (!res.body) throw new Error('No response body')
+
+      if (!res) {
+        throw new Error('No response from backend')
+      }
 
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
