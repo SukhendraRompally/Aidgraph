@@ -18,7 +18,7 @@ export function MessageBubble({ message }: { message: Message }) {
 
   return (
     <div className={cn('flex mb-3', isUser ? 'justify-end' : 'justify-start')}>
-      <div className={cn('flex flex-col gap-2', isUser ? 'items-end' : 'items-start', 'max-w-[80%]')}>
+      <div className={cn('flex flex-col gap-2', isUser ? 'items-end' : 'items-start', 'max-w-[92%] sm:max-w-[80%]')}>
         {!isUser && message.note && (
           <div className="flex items-start gap-1.5 text-xs text-muted-foreground bg-muted border border-border/60 rounded-lg px-3 py-2 w-full">
             <Info className="h-3.5 w-3.5 shrink-0 mt-0.5 text-accent" />
@@ -31,7 +31,7 @@ export function MessageBubble({ message }: { message: Message }) {
             ? 'bg-muted rounded-br-sm'
             : 'bg-card border border-border rounded-bl-sm'
         )}>
-          <div className="prose prose-sm max-w-none break-words prose-p:my-1 prose-p:leading-relaxed prose-headings:font-semibold prose-headings:my-2 prose-ul:my-1 prose-ul:pl-4 prose-ol:my-1 prose-ol:pl-4 prose-li:my-0.5 prose-strong:font-semibold prose-code:text-xs prose-code:bg-muted prose-code:px-1 prose-code:rounded prose-pre:bg-muted prose-pre:rounded-lg prose-pre:p-3 prose-table:text-xs prose-p:text-foreground prose-headings:text-foreground prose-li:text-foreground prose-strong:text-foreground">
+          <div className="prose prose-sm max-w-none break-words prose-p:my-1 prose-p:leading-relaxed prose-headings:font-semibold prose-headings:my-2 prose-ul:my-1 prose-ul:pl-4 prose-ol:my-1 prose-ol:pl-4 prose-li:my-0.5 prose-strong:font-semibold prose-code:text-xs prose-code:bg-muted prose-code:px-1 prose-code:rounded prose-pre:bg-muted prose-pre:rounded-lg prose-pre:p-3 prose-pre:overflow-x-auto prose-table:text-xs prose-table:block prose-table:overflow-x-auto prose-p:text-foreground prose-headings:text-foreground prose-li:text-foreground prose-strong:text-foreground">
             <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
               {message.content || ' '}
             </ReactMarkdown>

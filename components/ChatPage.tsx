@@ -181,12 +181,12 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
     <div className="flex flex-col flex-1 min-h-0">
       <div className="flex-1 overflow-y-auto scroll-smooth">
         {isEmpty ? (
-          <div className="flex flex-col items-center justify-center h-full gap-8 px-4 py-12">
+          <div className="flex flex-col items-center justify-center h-full gap-5 sm:gap-8 px-4 py-8 sm:py-12">
             <div className="text-center space-y-2">
-              <h1 className="text-4xl font-bold text-foreground tracking-tight">
+              <h1 className="text-2xl sm:text-4xl font-bold text-foreground tracking-tight">
                 Research any <span className="text-primary">nonprofit</span> in the world.
               </h1>
-              <p className="text-muted-foreground text-sm max-w-sm mx-auto">
+              <p className="text-muted-foreground text-sm max-w-xs sm:max-w-sm mx-auto">
                 8M+ organizations — missions, financials, governance, and more.
               </p>
             </div>
@@ -203,7 +203,7 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
             </div>
           </div>
         ) : (
-          <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+          <div className="max-w-3xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
             {messages.map(msg => (
               <MessageBubble key={msg.id} message={msg} />
             ))}
@@ -219,7 +219,7 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
         )}
       </div>
 
-      <div className="shrink-0 px-4 pb-4 pt-2">
+      <div className="shrink-0 px-3 sm:px-4 pb-3 sm:pb-4 pt-2">
         <div className="max-w-3xl mx-auto space-y-2">
           <ChatInput
             value={input}

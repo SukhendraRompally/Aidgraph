@@ -57,14 +57,14 @@ export function ChatInput({
         onClick={streaming ? onStop : onSubmit}
         disabled={!streaming && (disabled || !value.trim())}
         className={cn(
-          'shrink-0 flex items-center justify-center h-8 w-8 rounded-full transition-colors',
+          'shrink-0 flex items-center justify-center h-10 w-10 rounded-full transition-colors',
           streaming
             ? 'bg-muted-foreground/20 hover:bg-muted-foreground/30 text-foreground'
             : 'bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed'
         )}
         aria-label={streaming ? 'Stop' : 'Send'}
       >
-        {streaming ? <Square className="h-3.5 w-3.5 fill-current" /> : <ArrowUp className="h-4 w-4" />}
+        {streaming ? <Square className="h-4 w-4 fill-current" /> : <ArrowUp className="h-4 w-4" />}
       </button>
     </div>
   )

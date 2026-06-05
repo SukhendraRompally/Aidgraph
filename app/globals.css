@@ -96,5 +96,13 @@
   }
   html {
     @apply font-sans;
+    /* Prevent horizontal scroll on mobile */
+    overflow-x: hidden;
+    /* Respect iOS safe areas (notch, home indicator) */
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  /* Prevent double-tap zoom on buttons/inputs on iOS */
+  button, input, textarea, select {
+    touch-action: manipulation;
   }
 }

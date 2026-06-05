@@ -84,10 +84,10 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             </Link>
             <button
               onClick={e => deleteThread(e, thread.id)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center p-1 rounded text-muted-foreground hover:text-destructive transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center p-2 rounded text-muted-foreground hover:text-destructive transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100"
               aria-label="Delete thread"
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <Trash2 className="h-4 w-4" />
             </button>
           </div>
         ))}
