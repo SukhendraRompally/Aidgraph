@@ -20,7 +20,8 @@ export type Message = {
   id: string
   role: 'user' | 'assistant'
   content: string
-  note?: string // backend note shown as info chip (e.g. dataset limitation notice)
+  note?: string
+  error?: boolean
 }
 
 type ChatPageProps = {
@@ -38,6 +39,7 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [input, setInput] = useState('')
   const [streaming, setStreaming] = useState(false)
+  const [streamPhase, setStreamPhase] = useState('')
   const [showAuthGate, setShowAuthGate] = useState(false)
   const [queryCount, setQueryCount] = useState(0)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -53,6 +55,14 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, streaming])
+
+  useEffect(() => {
+    if (!streaming) { setStreamPhase(''); return }
+    setStreamPhase('Analyzing your request…')
+    const t1 = setTimeout(() => setStreamPhase('Searching details…'), 1500)
+    const t2 = setTimeout(() => setStreamPhase('Formatting response…'), 3000)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [streaming])
 
   const saveMessages = useCallback(async (tid: string, msgs: Message[]) => {
     if (isSavingRef.current) return
@@ -135,7 +145,7 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
       if ((err as Error)?.name !== 'AbortError') {
         setMessages(prev =>
           prev.map(m => m.id === assistantId
-            ? { ...m, content: 'Sorry, something went wrong. Please try again.' }
+            ? { ...m, content: 'Something went wrong — please try again.', error: true }
             : m
           )
         )
@@ -207,11 +217,10 @@ export function ChatPage({ threadId: initialThreadId, initialMessages = [] }: Ch
             {messages.map(msg => (
               <MessageBubble key={msg.id} message={msg} />
             ))}
-            {streaming && messages[messages.length - 1]?.content === '' && (
-              <div className="flex gap-1.5 px-2 py-1">
-                <span className="h-2 w-2 rounded-full bg-primary/70 animate-bounce [animation-delay:0ms]" />
-                <span className="h-2 w-2 rounded-full bg-primary/70 animate-bounce [animation-delay:150ms]" />
-                <span className="h-2 w-2 rounded-full bg-primary/70 animate-bounce [animation-delay:300ms]" />
+            {streaming && messages[messages.length - 1]?.content === '' && streamPhase && (
+              <div className="flex items-center gap-2.5 px-1 py-1 text-sm text-muted-foreground">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-pulse shrink-0" />
+                {streamPhase}
               </div>
             )}
             <div ref={bottomRef} />
