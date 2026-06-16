@@ -49,11 +49,18 @@ export async function GET(req: Request) {
     .order('updated_at', { ascending: false })
     .limit(200)
 
-  // Daily active users: count distinct user_ids per day from threads
+  // All query logs (anon + authenticated)
+  const { data: queryLogs } = await sb
+    .from('query_logs')
+    .select('id, user_id, query, answer, filters, result_count, web_search_triggered, created_at')
+    .order('created_at', { ascending: false })
+    .limit(500)
+
+  // Daily active users: count distinct user_ids per day from query_logs
   const { data: dailyActivity } = await sb
-    .from('threads')
-    .select('user_id, updated_at')
-    .order('updated_at', { ascending: false })
+    .from('query_logs')
+    .select('user_id, created_at')
+    .order('created_at', { ascending: false })
 
   // Build user map: id → email
   const userMap: Record<string, string> = {}
@@ -61,12 +68,12 @@ export async function GET(req: Request) {
     userMap[u.id] = u.email ?? u.id
   }
 
-  // Group daily active users
+  // Group daily active users (from query_logs, includes anon as null)
   const dauMap: Record<string, Set<string>> = {}
   for (const row of dailyActivity ?? []) {
-    const day = row.updated_at.slice(0, 10)
+    const day = row.created_at.slice(0, 10)
     if (!dauMap[day]) dauMap[day] = new Set()
-    dauMap[day].add(row.user_id)
+    dauMap[day].add(row.user_id ?? 'anon')
   }
   const dau = Object.entries(dauMap)
     .sort((a, b) => b[0].localeCompare(a[0]))
@@ -90,10 +97,18 @@ export async function GET(req: Request) {
     .slice(0, 30)
     .map(([date, count]) => ({ date, count }))
 
+  // Enrich query logs with email
+  const enrichedLogs = (queryLogs ?? []).map(q => ({
+    ...q,
+    email: q.user_id ? (userMap[q.user_id] ?? 'unknown') : 'anonymous',
+  }))
+
   return NextResponse.json({
     totalUsers: users?.length ?? 0,
+    totalQueries: queryLogs?.length ?? 0,
     signups,
     dau,
     threads: enrichedThreads,
+    queryLogs: enrichedLogs,
   })
 }

@@ -52,3 +52,24 @@ create policy "users own messages via thread" on public.messages
 -- API requests: anyone can insert, only admins read (service role)
 create policy "anyone can submit api request" on public.api_requests
   for insert with check (true);
+
+-- Query logs table (all queries, anon + authenticated)
+create table if not exists public.query_logs (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users on delete set null,
+  query text not null,
+  answer text,
+  filters jsonb,
+  result_count int,
+  web_search_triggered boolean default false,
+  created_at timestamptz default now() not null
+);
+
+create index if not exists query_logs_created_at on public.query_logs (created_at desc);
+create index if not exists query_logs_user_id on public.query_logs (user_id);
+
+alter table public.query_logs enable row level security;
+
+-- Only service role can read/write (no user-facing access)
+create policy "service role only" on public.query_logs
+  for all using (false);
